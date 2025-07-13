@@ -27,7 +27,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build \
-            -f src/Dockerfile \
+            -f Dockerfile \
             -t docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             -t docker.io/${{ env.IMAGE_NAME }}:latest \
             src
