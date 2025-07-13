@@ -13,7 +13,7 @@ RUN dotnet publish cartservice.csproj -p:PublishSingleFile=true -r linux-musl-x6
 FROM mcr.microsoft.com/dotnet/runtime-deps:7.0.2-alpine3.16-amd64@sha256:e7f36adb0e0b61371bd9ff5a967bccf87b0dbf63c7704f6d8e5fcbb12052410d as without-grpc-health-probe-bin
 
 WORKDIR /app
-COPY --from=builder /src/cartservice .
+COPY --from=builder /cartservice .
 EXPOSE 7070
 ENV DOTNET_EnableDiagnostics=0 \
     ASPNETCORE_URLS=http://*:7070
