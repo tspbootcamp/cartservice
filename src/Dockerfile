@@ -1,15 +1,27 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0.102@sha256:028d360c0f409f13daf8689edfe680dba9d4b651eb8a6f1210a3542f0ad4bf58 as builder
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:7.0.102 AS builder
 WORKDIR /app
 
+# Copy csproj and restore
 COPY src/cartservice.csproj .
 RUN dotnet restore cartservice.csproj -r linux-musl-x64
 
-COPY . .
+# Copy the rest of the source code
+COPY src/. .
 
-RUN dotnet publish cartservice.csproj -p:PublishSingleFile=true -r linux-musl-x64 --self-contained true -p:PublishTrimmed=True -p:TrimMode=Link -c release -o /cartservice --no-restore
+# Publish the app
+RUN dotnet publish cartservice.csproj \
+    -p:PublishSingleFile=true \
+    -r linux-musl-x64 \
+    --self-contained true \
+    -p:PublishTrimmed=True \
+    -p:TrimMode=Link \
+    -c Release \
+    -o /cartservice \
+    --no-restore
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:7.0.2-alpine3.16-amd64@sha256:e7f36adb0e0b61371bd9ff5a967bccf87b0dbf63c7704f6d8e5fcbb12052410d as without-grpc-health-probe-bin
-
+# Runtime stage (no gRPC health probe yet)
+FROM mcr.microsoft.com/dotnet/runtime-deps:7.0.2-alpine3.16-amd64 AS base
 WORKDIR /app
 COPY --from=builder /cartservice .
 EXPOSE 7070
@@ -17,10 +29,3 @@ ENV DOTNET_EnableDiagnostics=0 \
     ASPNETCORE_URLS=http://*:7070
 USER 1000
 ENTRYPOINT ["/app/cartservice"]
-
-FROM without-grpc-health-probe-bin
-USER root
-RUN GRPC_HEALTH_PROBE_VERSION=v0.4.14 && \
-    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
-    chmod +x /bin/grpc_health_probe
-USER 1000
