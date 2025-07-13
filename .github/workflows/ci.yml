@@ -30,7 +30,7 @@ jobs:
             -f src/Dockerfile \
             -t docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             -t docker.io/${{ env.IMAGE_NAME }}:latest \
-            src
-
+            .  # 👈 build context changed from `src` to `.`
+          
           docker push docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker push docker.io/${{ env.IMAGE_NAME }}:latest
