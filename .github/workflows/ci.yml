@@ -1,4 +1,4 @@
-name: CI for AdService
+name: CI for CartService
 
 on:
   push:
@@ -26,6 +26,11 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }} -t docker.io/${{ env.IMAGE_NAME }}:latest .
+          docker build \
+            -f cartservice/src/Dockerfile \
+            -t docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            -t docker.io/${{ env.IMAGE_NAME }}:latest \
+            cartservice
+          
           docker push docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker push docker.io/${{ env.IMAGE_NAME }}:latest
