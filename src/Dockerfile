@@ -1,11 +1,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0.102@sha256:028d360c0f409f13daf8689edfe680dba9d4b651eb8a6f1210a3542f0ad4bf58 as builder
 WORKDIR /app
 
-# Adjust path to src/cartservice.csproj
 COPY cartservice.csproj .
 RUN dotnet restore cartservice.csproj -r linux-musl-x64
 
-# Copy everything from src folder into /app
 COPY . .
 
 RUN dotnet publish cartservice.csproj -p:PublishSingleFile=true -r linux-musl-x64 --self-contained true -p:PublishTrimmed=True -p:TrimMode=Link -c release -o /cartservice --no-restore
