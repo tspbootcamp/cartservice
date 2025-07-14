@@ -25,10 +25,9 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./src
-          push: true
-          tags: |
-            marypearl/cartservice:latest
-            marypearl/cartservice:${{ github.sha }}
+        run: |
+          docker buildx build \
+            --file ./src/Dockerfile \
+            --tag $IMAGE_NAME:latest \
+            --tag $IMAGE_NAME:${{ github.sha }} \
+            --push .
